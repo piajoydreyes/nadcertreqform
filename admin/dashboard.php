@@ -1,5 +1,20 @@
 <?php
-  include('sessions.php');
+    session_start();
+    
+    // Check if user is logged in
+    if (!isset($_SESSION['uid']) || !isset($_SESSION['uName'])) {
+        header("Location: login.php");
+        exit();
+    }
+
+    $uid = $_SESSION['uid'];
+    $uName = $_SESSION['uName'];
+    $uEmail = $_SESSION['eMail'];
+    $uFName = $_SESSION['fName'];
+    $uLName = $_SESSION['lName'];
+
+    //db
+    require '../includes/dbcon.php'; 
 ?>
 
 <!DOCTYPE html>
@@ -35,7 +50,7 @@
         <?php
 
         ?>
-        <span class="ms-1 font-weight-bold text-uppercase"> ADMIN <?php echo $_SESSION['uName']; ?> </span>
+        <span class="ms-1 font-weight-bold text-uppercase"> ADMIN <?= htmlspecialchars($uFName) ?> </span>
       </a>
     </div>
     <hr class="horizontal dark mt-0">
@@ -70,12 +85,13 @@
           <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Account pages</h6>
         </li>
         <li class="nav-item">
-          <a class="nav-link " href="login.php">
-            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
-            </div>
-            <span class="nav-link-text ms-1">Logout</span>
-          </a>
+          
+            <a class="nav-link" href="logout.php">
+              <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
+              </div>
+              <span class="nav-link-text ms-1" >Logout</span>
+            </a> 
         </li>
       </ul>
     </div>
@@ -116,271 +132,234 @@
       </div>
     </nav>
     <!-- End Navbar -->
+
     <div class="container-fluid py-4">
-      <div class="row">
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div class="card">
-            <div class="card-body p-3">
-              <div class="row">
-                <div class="col-8">
-                  <div class="numbers">
-                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Pending Requests</p>
-                    
-                    <?php
-                      $query = "SELECT * FROM tbl_cert_req WHERE status = 'Requested' ";
-                      $query_run = mysqli_query($conn, $query);
+    <div class="row">
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card">
+          <div class="card-body p-3">
+            <div class="row">
+              <div class="col-8">
+                <div class="numbers">
+                  <p class="text-sm mb-0 text-uppercase font-weight-bold">Pending Requests</p>
+                  
+                  <?php
+                    // Get count of 'Requested' status
+                    $query = "SELECT COUNT(*) FROM tbl_cert_req WHERE status = 'Requested'";
+                    $query_run = $connPDODBNADCERTDOC->query($query);
+                    $pendingReq = $query_run->fetchColumn();
 
-                      if ($pendingReq = mysqli_num_rows($query_run))
-                      {
-                        echo '<h1 class="font-weight-bolder"> '.$pendingReq.' </h1>';
-                      }
-                      else
-                      {
-                        echo '<h1 class="font-weight-bolder">No Data</h1>';
-                      }
-                    ?>
-                      
-                  </div>
-                </div>
-                <div class="col-4 text-end">
-                  <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                    <i class="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
+                    echo $pendingReq > 0 ? '<h1 class="font-weight-bolder">' . $pendingReq . '</h1>' : '<h1 class="font-weight-bolder">No Data</h1>';
+                  ?>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div class="card">
-            <div class="card-body p-3">
-              <div class="row">
-                <div class="col-8">
-                  <div class="numbers">
-                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Released Requests</p>
-                    
-                    <?php
-                      $query = "SELECT * FROM tbl_cert_req WHERE status = 'Released' ";
-                      $query_run = mysqli_query($conn, $query);
-
-                      if ($pendingReq = mysqli_num_rows($query_run))
-                      {
-                        echo '<h1 class="font-weight-bolder"> '.$pendingReq.' </h1>';
-                      }
-                      else
-                      {
-                        echo '<h1 class="font-weight-bolder">No Data</h1>';
-                      }
-                    ?>
-                    
-                  </div>
-                </div>
-                <div class="col-4 text-end">
-                  <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
-                    <i class="ni ni-world text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div class="card">
-            <div class="card-body p-3">
-              <div class="row">
-                <div class="col-8">
-                  <div class="numbers">
-                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Requested Certificates</p>
-                    <?php
-                      $query = "SELECT * FROM tbl_cert_req ";
-                      $query_run = mysqli_query($conn, $query);
-
-                      if ($pendingReq = mysqli_num_rows($query_run))
-                      {
-                        echo '<h1 class="font-weight-bolder"> '.$pendingReq.' </h1>';
-                      }
-                      else
-                      {
-                        echo '<h1 class="font-weight-bolder">No Data</h1>';
-                      }
-                    ?>
-                  </div>
-                </div>
-                <div class="col-4 text-end">
-                  <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
-                    <i class="ni ni-paper-diploma text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6">
-          <div class="card">
-            <div class="card-body p-3">
-              <div class="row">
-                <div class="col-8">
-                  <div class="numbers">
-                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Users</p>
-                    
-                    <?php
-                      $query = "SELECT * FROM tbl_admin ";
-                      $query_run = mysqli_query($conn, $query);
-
-                      if ($pendingReq = mysqli_num_rows($query_run))
-                      {
-                        echo '<h1 class="font-weight-bolder"> '.$pendingReq.' </h1>';
-                      }
-                      else
-                      {
-                        echo '<h1 class="font-weight-bolder">No Data</h1>';
-                      }
-                    ?>
-
-                  </div>
-                </div>
-                <div class="col-4 text-end">
-                  <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
-                    <i class="ni ni-single-02 text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
+              <div class="col-4 text-end">
+                <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
+                  <i class="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      
-      <div class="col-12 mt-3">
-        <div class="card mb-4">
-          <div class="card-header pb-0">
-              <h6>Document Requests Overview</h6>
-          </div>
-          <div class="card-body px-0 pt-0 pb-2">
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card">
+          <div class="card-body p-3">
+            <div class="row">
+              <div class="col-8">
+                <div class="numbers">
+                  <p class="text-sm mb-0 text-uppercase font-weight-bold">Released Requests</p>
+                  
+                  <?php
+                    // Get count of 'Released' status
+                    $query = "SELECT COUNT(*) FROM tbl_cert_req WHERE status = 'Released'";
+                    $query_run = $connPDODBNADCERTDOC->query($query);
+                    $releasedReq = $query_run->fetchColumn();
 
-          <?php 
-              // $query = "SELECT tbl_user.*, tbl_cert_req.user_id, tbl_cert_req.ctrl_no, tbl_cert_req.fullname, tbl_cert_req.certDesignation, tbl_cert_req.trainingCert, tbl_cert_req.otherTrainingCert, tbl_cert_req.trainingDate, tbl_cert_req.processingOfficer, tbl_cert_req.status, tbl_cert_req.remarks FROM tbl_user
-              // JOIN tbl_cert_req ON tbl_user.ctrl_no = tbl_cert_req.ctrl_no ";
-              $query = "SELECT * FROM tbl_cert_req";
-              $query_run = mysqli_query($conn, $query);
-          ?>
-
-            <div class="table-responsive p-0">
-              <table class="table align-items-center mb-0">
-                <thead>
-                    <tr>
-                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Control No.</th>
-                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Full Name</th>
-                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training / Certificate</th>
-                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Title</th>
-                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Other Title</th>
-                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training Date</th>
-                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Processing Officer</th>
-                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php
-                    if(mysqli_num_rows ($query_run) > 0)
-                    {
-                        while($row = mysqli_fetch_array($query_run))
-                        {
-                            ?>
-                                  <tr>
-                                      <td class="align-middle text-center">
-                                          <h6 class="mb-0 text-sm"><?php echo $row['ctrl_no'] ?></h6>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="text-xs text-secondary mb-0"><?php echo $row['fullname'] ?></p>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="text-xs text-secondary mb-0"><?php echo $row['certDesignation'] ?></p>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="text-xs text-secondary mb-0"><?php echo $row['trainingCert'] ?></p>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="text-xs text-secondary mb-0"><?php echo $row['otherTrainingCert'] ?></p>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="text-xs text-secondary mb-0">
-                                            <?php 
-                                              if(!is_null($row['trainingDate']))
-                                              {
-                                                $trainDate = strtotime($row['trainingDate']);
-                                                if ($trainDate > 0)
-                                                {
-                                                  echo date("M d, Y",strtotime($row['trainingDate']));
-                                                }
-                                              }
-                                            ?>
-                                          </p>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="text-xs text-secondary text-uppercase mb-0"><?php echo $row['processingOfficer'] ?></p>
-                                      </td>
-                                      <td class="align-middle text-center text-sm">
-                                        <?php 
-                                          if($row['status'] ==="Requested")
-                                          {
-                                            echo '<span class="badge badge-sm bg-gradient-info">Requested</span>';
-                                          } 
-                                          else if($row['status'] ==="For Payment")
-                                          {
-                                            echo '<span class="badge bg-gradient-warning text-white">For Payment</span>';
-                                          }
-                                          else if($row['status'] ==="Paid")
-                                          {
-                                              echo '<span class="badge bg-gradient-success text-white">Paid</span>';
-                                          }
-                                          else if($row['status'] ==="For Releasing")
-                                          {
-                                              echo '<span class="badge bg-gradient-primary text-white">For Releasing</span>';
-                                          }
-                                          else if($row['status'] ==="Released")
-                                          {
-                                              echo '<span class="badge bg-gradient-danger text-white">Released</span>';
-                                          }
-                                        ?>
-                                      </td>
-                                  </tr>
-                              
-
-                            <?php
-                        }
-                    }
-                    else 
-                    {
-                        ?>
-                            <tr>
-                                <td colspan="8">No Request Found.</td>
-                            </tr>
-                        <?php
-                    }
-                ?>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-      <footer class="footer pt-3  ">
-        <div class="container-fluid">
-          <div class="row align-items-center justify-content-lg-between">
-            <div class="col-lg-6 mb-lg-0 mb-4">
-              <div class="copyright text-center text-sm text-muted text-lg-start">
-                © <script>
-                  document.write(new Date().getFullYear())
-                </script>,
-                developed by
-                <a href="#" class="font-weight-bold" target="_blank">Management Information Systems Division</a>
+                    echo $releasedReq > 0 ? '<h1 class="font-weight-bolder">' . $releasedReq . '</h1>' : '<h1 class="font-weight-bolder">No Data</h1>';
+                  ?>
+                </div>
+              </div>
+              <div class="col-4 text-end">
+                <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
+                  <i class="ni ni-world text-lg opacity-10" aria-hidden="true"></i>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </footer>
+      </div>
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card">
+          <div class="card-body p-3">
+            <div class="row">
+              <div class="col-8">
+                <div class="numbers">
+                  <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Requested Certificates</p>
+                  <?php
+                    // Get total count of requests
+                    $query = "SELECT COUNT(*) FROM tbl_cert_req";
+                    $query_run = $connPDODBNADCERTDOC->query($query);
+                    $totalReq = $query_run->fetchColumn();
+
+                    echo $totalReq > 0 ? '<h1 class="font-weight-bolder">' . $totalReq . '</h1>' : '<h1 class="font-weight-bolder">No Data</h1>';
+                  ?>
+                </div>
+              </div>
+              <div class="col-4 text-end">
+                <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
+                  <i class="ni ni-paper-diploma text-lg opacity-10" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-sm-6">
+        <div class="card">
+          <div class="card-body p-3">
+            <div class="row">
+              <div class="col-8">
+                <div class="numbers">
+                  <p class="text-sm mb-0 text-uppercase font-weight-bold">Users</p>
+                  
+                  <?php
+                    // Get user count from tbl_admin
+                    $query = "SELECT COUNT(*) FROM tbl_admin";
+                    $query_run = $connPDODBNADCERTDOC->query($query);
+                    $userCount = $query_run->fetchColumn();
+
+                    echo $userCount > 0 ? '<h1 class="font-weight-bolder">' . $userCount . '</h1>' : '<h1 class="font-weight-bolder">No Data</h1>';
+                  ?>
+                </div>
+              </div>
+              <div class="col-4 text-end">
+                <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
+                  <i class="ni ni-single-02 text-lg opacity-10" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <div class="col-12 mt-3">
+      <div class="card mb-4">
+        <div class="card-header pb-0">
+          <h6>Document Requests Overview</h6>
+        </div>
+        <div class="card-body px-0 pt-0 pb-2">
+
+        <?php 
+            // Get all certificate requests
+            $query = "SELECT * FROM tbl_cert_req";
+            $query_run = $connPDODBNADCERTDOC->query($query);
+        ?>
+
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Control No.</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Full Name</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training / Certificate</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Title</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Other Title</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training Date</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Processing Officer</th>
+                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+              <?php
+                  if ($query_run->rowCount() > 0)
+                  {
+                      while ($row = $query_run->fetch(PDO::FETCH_ASSOC))
+                      {
+                          ?>
+                          <tr>
+                              <td class="align-middle text-center">
+                                  <h6 class="mb-0 text-sm"><?php echo $row['ctrl_no'] ?></h6>
+                              </td>
+                              <td class="align-middle text-center">
+                                  <p class="text-xs text-secondary mb-0"><?php echo $row['fullname'] ?></p>
+                              </td>
+                              <td class="align-middle text-center">
+                                  <p class="text-xs text-secondary mb-0"><?php echo $row['certdesignation'] ?></p>
+                              </td>
+                              <td class="align-middle text-center">
+                                  <p class="text-xs text-secondary mb-0"><?php echo $row['trainingcert'] ?></p>
+                              </td>
+                              <td class="align-middle text-center">
+                                  <p class="text-xs text-secondary mb-0"><?php echo $row['othertrainingcert'] ?></p>
+                              </td>
+                              <td class="align-middle text-center">
+                                  <p class="text-xs text-secondary mb-0">
+                                    <?php 
+                                      if(!is_null($row['trainingdate']))
+                                      {
+                                        $trainDate = strtotime($row['trainingdate']);
+                                        if ($trainDate > 0)
+                                        {
+                                          echo date("M d, Y", strtotime($row['trainingdate']));
+                                        }
+                                      }
+                                    ?>
+                                  </p>
+                              </td>
+                              <td class="align-middle text-center">
+                                  <p class="text-xs text-secondary text-uppercase mb-0"><?php echo $row['processingofficer'] ?></p>
+                              </td>
+                              <td class="align-middle text-center text-sm">
+                                <?php 
+                                  if ($row['status'] === "Requested") {
+                                    echo '<span class="badge badge-sm bg-gradient-info">Requested</span>';
+                                  } elseif ($row['status'] === "For Payment") {
+                                    echo '<span class="badge bg-gradient-warning text-white">For Payment</span>';
+                                  } elseif ($row['status'] === "Paid") {
+                                    echo '<span class="badge bg-gradient-success text-white">Paid</span>';
+                                  } elseif ($row['status'] === "For Releasing") {
+                                    echo '<span class="badge bg-gradient-primary text-white">For Releasing</span>';
+                                  } elseif ($row['status'] === "Released") {
+                                    echo '<span class="badge bg-gradient-danger text-white">Released</span>';
+                                  }
+                                ?>
+                              </td>
+                          </tr>
+                          <?php
+                      }
+                  }
+                  else {
+                      ?>
+                          <tr>
+                              <td colspan="8">No Request Found.</td>
+                          </tr>
+                      <?php
+                  }
+              ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer pt-3">
+      <div class="container-fluid">
+        <div class="row align-items-center justify-content-lg-between">
+          <div class="col-lg-6 mb-lg-0 mb-4">
+            <div class="copyright text-center text-sm text-muted text-lg-start">
+              © <script>document.write(new Date().getFullYear())</script>, developed by <a href="#" class="font-weight-bold" target="_blank">Management Information Systems Division</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+</div>
+
+
+
   </main>
 
   <!--   Core JS Files   -->

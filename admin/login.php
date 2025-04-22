@@ -1,5 +1,5 @@
 <?php
-  include('sessions.php');
+    session_start();
 ?>
 
 <!DOCTYPE html>

@@ -1,12 +1,20 @@
 <?php
-    include('sessions.php');
-    // session_start();
-    // if (!isset($_SESSION['uid']))
-    // {
-    //     header("location: login.php");
-    //     exit();
-    // }
+    session_start();
     
+    // Check if user is logged in
+    if (!isset($_SESSION['uid']) || !isset($_SESSION['uName'])) {
+        header("Location: login.php");
+        exit();
+    }
+
+    $uid = $_SESSION['uid'];
+    $uName = $_SESSION['uName'];
+    $uEmail = $_SESSION['eMail'];
+    $uFName = $_SESSION['fName'];
+    $uLName = $_SESSION['lName'];
+
+    //db
+    require '../includes/dbcon.php'; 
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +47,7 @@
       <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
       <a class="navbar-brand m-0" href="# " target="_blank">
         <img src="../assets/img/logo_phc.png" class="navbar-brand-img h-100" alt="main_logo">
-        <span class="ms-1 font-weight-bold text-uppercase"> ADMIN <?php echo $_SESSION['uname']; ?> </span>
+        <span class="ms-1 font-weight-bold text-uppercase"> ADMIN <?= htmlspecialchars($uFName) ?> </span>
       </a>
     </div>
     <hr class="horizontal dark mt-0">
@@ -122,152 +130,151 @@
     <!-- End Navbar -->
 
     <div class="container-fluid py-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card mb-4">
-                    <div class="card-header pb-0">
-                        <h6>Document Requests</h6>
-                    </div>
-                    <div class="card-body px-0 pt-0 pb-2">
+      <div class="row">
+          <div class="col-12">
+              <div class="card mb-4">
+                  <div class="card-header pb-0">
+                      <h6>Document Requests</h6>
+                  </div>
+                  <div class="card-body px-0 pt-0 pb-2">
 
-                    <?php 
-                        // $query = "SELECT tbl_user.*, tbl_cert_req.user_id, tbl_cert_req.ctrl_no, tbl_cert_req.fullname, tbl_cert_req.certDesignation, tbl_cert_req.trainingCert, tbl_cert_req.otherTrainingCert, tbl_cert_req.trainingDate, tbl_cert_req.processingOfficer, tbl_cert_req.status, tbl_cert_req.remarks, tbl_cert_req.releaseDate FROM tbl_user
-                        // JOIN tbl_cert_req ON tbl_user.ctrl_no = tbl_cert_req.ctrl_no ";
-                        $query = "SELECT * FROM tbl_cert_req";
-                        $query_run = mysqli_query($conn, $query);
-                    ?>
+                  <?php 
+                      // PostgreSQL query to fetch all document requests
+                      $query = "SELECT * FROM tbl_cert_req";
+                      $query_run = $connPDODBNADCERTDOC->query($query);
+                  ?>
 
-                      <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0">
-                          <thead>
-                              <tr>
-                                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Control No.</th>
-                                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Full Name</th>
-                                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training / Certificate</th>
-                                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Title</th>
-                                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Other Title</th>
-                                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training Date</th>
-                                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Processing Officer</th>
-                                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Status</th>
-                                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Remarks</th>
-                                  <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Release Date</th>
-                                  <th class="text-secondary opacity-7"></th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                              
-                          <?php
-                            if(mysqli_num_rows ($query_run) > 0)
-                            {
-                                while($row = mysqli_fetch_array($query_run))
-                                {
-                                    ?>
-                                          <tr>
-                                              <td class="align-middle text-center">
-                                                  <h6 class="mb-0 text-sm"><?php echo $row['ctrl_no'] ?></h6>
-                                              </td>
-                                              <td class="align-middle text-center">
-                                                  <p class="text-xs text-secondary mb-0"><?php echo $row['fullname'] ?></p>
-                                              </td>
-                                              <td class="align-middle text-center">
-                                                  <p class="text-xs text-secondary mb-0"><?php echo $row['certDesignation'] ?></p>
-                                              </td>
-                                              <td class="align-middle text-center">
-                                                  <p class="text-xs text-secondary mb-0"><?php echo $row['trainingCert'] ?></p>
-                                              </td>
-                                              <td class="align-middle text-center">
-                                                  <p class="text-xs text-secondary mb-0"><?php echo $row['otherTrainingCert'] ?></p>
-                                              </td>
-                                              <td class="align-middle text-center">
-                                                  <p class="text-xs text-secondary mb-0">
-                                                  <?php 
-                                                    if(!is_null($row['trainingDate']))
-                                                    {
-                                                      $trainDate = strtotime($row['trainingDate']);
-                                                      if ($trainDate > 0)
-                                                      {
-                                                        echo date("M d, Y",strtotime($row['trainingDate']));
-                                                      }
-                                                    }
-                                                  ?>
-                                                  </p>
-                                              </td>
-                                              <td class="align-middle text-center">
-                                                  <p class="text-xs text-secondary text-uppercase mb-0"><?php echo $row['processingOfficer'] ?></p>
-                                              </td>
-                                              <td class="align-middle text-center text-sm">
+                    <div class="table-responsive p-0">
+                      <table class="table align-items-center mb-0">
+                        <thead>
+                            <tr>
+                                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Control No.</th>
+                                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Full Name</th>
+                                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training / Certificate</th>
+                                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Title</th>
+                                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Other Title</th>
+                                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training Date</th>
+                                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Processing Officer</th>
+                                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Status</th>
+                                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Remarks</th>
+                                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Release Date</th>
+                                <th class="text-secondary opacity-7"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        <?php
+                          if ($query_run->rowCount() > 0)
+                          {
+                            while ($row = $query_run->fetch(PDO::FETCH_ASSOC))
+                              {
+                                  ?>
+                                        <tr>
+                                            <td class="align-middle text-center">
+                                                <h6 class="mb-0 text-sm"><?php echo $row['ctrl_no'] ?></h6>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-xs text-secondary mb-0"><?php echo $row['fullname'] ?></p>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-xs text-secondary mb-0"><?php echo $row['certdesignation'] ?></p>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-xs text-secondary mb-0"><?php echo $row['trainingcert'] ?></p>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-xs text-secondary mb-0"><?php echo $row['othertrainingcert'] ?></p>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-xs text-secondary mb-0">
                                                 <?php 
-                                                  if($row['status'] ==="Requested")
+                                                  if(!is_null($row['trainingdate']))
                                                   {
-                                                    echo '<span class="badge badge-sm bg-gradient-info">Requested</span>';
-                                                  } 
-                                                  else if($row['status'] ==="For Payment")
-                                                  {
-                                                    echo '<span class="badge bg-gradient-warning text-white">For Payment</span>';
-                                                  }
-                                                  else if($row['status'] ==="Paid")
-                                                  {
-                                                      echo '<span class="badge bg-gradient-success text-white">Paid</span>';
-                                                  }
-                                                  else if($row['status'] ==="For Releasing")
-                                                  {
-                                                      echo '<span class="badge bg-gradient-primary text-white">For Releasing</span>';
-                                                  }
-                                                  else if($row['status'] ==="Released")
-                                                  {
-                                                      echo '<span class="badge bg-gradient-danger text-white">Released</span>';
+                                                    $trainDate = strtotime($row['trainingdate']);
+                                                    if ($trainDate > 0)
+                                                    {
+                                                      echo date("M d, Y", strtotime($row['trainingdate']));
+                                                    }
                                                   }
                                                 ?>
-                                              </td>
-                                              <td class="align-middle text-center">
-                                                  <p class="text-xs text-secondary mb-0"><?php echo $row['remarks'] ?></p>
-                                              </td>
-                                              <td class="align-middle text-center">
-                                                <p class="text-xs text-secondary mb-0">
-                                                  <?php 
-                                                  if(!is_null($row['releaseDate']))
-                                                  {
-                                                    $reDate = strtotime($row['releaseDate']);
-                                                    if ($reDate > 0)
-                                                    {
-                                                      echo date("M d, Y",strtotime($row['releaseDate']));
-                                                    }
-                                                  }
-                                                  ?>
                                                 </p>
-                                              </td>
-                                              <td  class="align-middle text-center text-lg">
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-xs text-secondary text-uppercase mb-0"><?php echo $row['processingofficer'] ?></p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                              <?php 
+                                                if($row['status'] ==="Requested")
+                                                {
+                                                  echo '<span class="badge badge-sm bg-gradient-info">Requested</span>';
+                                                } 
+                                                else if($row['status'] ==="For Payment")
+                                                {
+                                                  echo '<span class="badge bg-gradient-warning text-white">For Payment</span>';
+                                                }
+                                                else if($row['status'] ==="Paid")
+                                                {
+                                                    echo '<span class="badge bg-gradient-success text-white">Paid</span>';
+                                                }
+                                                else if($row['status'] ==="For Releasing")
+                                                {
+                                                    echo '<span class="badge bg-gradient-primary text-white">For Releasing</span>';
+                                                }
+                                                else if($row['status'] ==="Released")
+                                                {
+                                                    echo '<span class="badge bg-gradient-danger text-white">Released</span>';
+                                                }
+                                              ?>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-xs text-secondary mb-0"><?php echo $row['remarks'] ?></p>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                              <p class="text-xs text-secondary mb-0">
+                                                <?php 
+                                                if(!is_null($row['releasedate']))
+                                                {
+                                                  $reDate = strtotime($row['releasedate']);
+                                                  if ($reDate > 0)
+                                                  {
+                                                    echo date("M d, Y", strtotime($row['releasedate']));
+                                                  }
+                                                }
+                                                ?>
+                                              </p>
+                                            </td>
+                                            <td  class="align-middle text-center text-lg">
 
-                                              <form action="editRequest.php" method="POST">
-                                                <input type="hidden" name="editDocReqID" value="<?php echo $row['ctrl_no'] ?>">
-                                                <button type="submit" class="btn btn-warning btn-xs mb-0" name="editDocReqBtn">
-                                                    <i class="fas fa-pencil-alt">
-                                                    </i>
-                                                    Edit
-                                                </button>
-                                              </form>
-                                              </td>
-                                          </tr>
-                                    <?php
-                                }
-                            }
-                            else 
-                            {
-                                ?>
-                                    <tr>
-                                        <td colspan="9">No Request Found.</td>
-                                    </tr>
-                                <?php
-                            }
-                          ?>    
+                                            <form action="editRequest.php" method="POST">
+                                              <input type="hidden" name="editDocReqID" value="<?php echo $row['ctrl_no'] ?>">
+                                              <button type="submit" class="btn btn-warning btn-xs mb-0" name="editDocReqBtn">
+                                                  <i class="fas fa-pencil-alt">
+                                                  </i>
+                                                  Edit
+                                              </button>
+                                            </form>
+                                            </td>
+                                        </tr>
+                                  <?php
+                              }
+                          }
+                          else 
+                          {
+                              ?>
+                                  <tr>
+                                      <td colspan="11">No Request Found.</td>
+                                  </tr>
+                              <?php
+                          }
+                        ?>    
 
-                          </tbody>
-                        </table>
-                      </div>
+                        </tbody>
+                      </table>
                     </div>
-                </div>
-            </div>
-        </div>
+                  </div>
+              </div>
+          </div>
+      </div>
 
         <!-- FOOTER -->
         <footer class="footer pt-5  ">

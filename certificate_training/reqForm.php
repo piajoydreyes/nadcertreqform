@@ -220,7 +220,7 @@
     <script>
     // $(document).ready(function() {
     //     $('#submit').on('click', function(e) {
-    //         // e.preventDefault(); // prevent form from submitting immediately
+    //         e.preventDefault(); // prevent form from submitting immediately
 
     //         let isValid = true;
 
@@ -279,19 +279,18 @@
     //             return;
     //         }
 
-    //         // If form is valid, submit directly to reqForm.inc.php
-    //         // if (isValid) {
-    //         //     $('#form').submit(); // Direct form submission
-    //         // } else {
-    //         //     Swal.fire({
-    //         //         icon: 'error',
-    //         //         title: 'Please fill out all required fields',
-    //         //         confirmButtonColor: '#d33'
-    //         //     });
-    //         // }
+    //         If form is valid, submit directly to reqForm.inc.php
+    //         if (isValid) {
+    //             $('#form').submit(); // Direct form submission
+    //         } else {
+    //             Swal.fire({
+    //                 icon: 'error',
+    //                 title: 'Please fill out all required fields',
+    //                 confirmButtonColor: '#d33'
+    //             });
+    //         }
     //     });
     // });
-
     </script>
 
 

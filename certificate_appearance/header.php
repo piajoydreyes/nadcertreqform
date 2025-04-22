@@ -1,5 +1,5 @@
 <?php
-    require_once 'includes/dbcon.inc.php';
+    require '../includes/dbcon.php';
 ?>
 
 <!DOCTYPE html>

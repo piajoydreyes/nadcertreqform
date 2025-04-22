@@ -4,7 +4,7 @@ require_once 'header.php';
     <section class="container">
         <header>Certificate of Appearance</header>
         
-        <form action="includes/reqForm.inc.php" method="post" class="form" id="form">
+        <form action="reqForm.inc.php" method="post" class="form" id="form">
 
             <h5>Fields with (*) are required.</h5>
             <div class="column">

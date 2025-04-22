@@ -1,5 +1,20 @@
 <?php
-  include('sessions.php');
+    session_start();
+    
+    // Check if user is logged in
+    if (!isset($_SESSION['uid']) || !isset($_SESSION['uName'])) {
+        header("Location: login.php");
+        exit();
+    }
+
+    $uid = $_SESSION['uid'];
+    $uName = $_SESSION['uName'];
+    $uEmail = $_SESSION['eMail'];
+    $uFName = $_SESSION['fName'];
+    $uLName = $_SESSION['lName'];
+
+    //db
+    require '../includes/dbcon.php'; 
 ?>
 
 <!DOCTYPE html>
@@ -35,7 +50,7 @@
         <?php
 
         ?>
-        <span class="ms-1 font-weight-bold text-uppercase"> ADMIN <?php echo $_SESSION['uname']; ?> </span>
+        <span class="ms-1 font-weight-bold text-uppercase"> ADMIN <?= htmlspecialchars($uFName) ?> </span>
       </a>
     </div>
     <hr class="horizontal dark mt-0">
@@ -126,12 +141,8 @@
           <div class="card-body px-0 pt-0 pb-2">
 
           <?php 
-              // $query = "SELECT tbl_cert_req.*, tbl_cert_payment.ctrl_no, tbl_cert_payment.description, tbl_cert_payment.quantity, tbl_cert_payment.unitPrice, tbl_cert_payment.totalPrice, tbl_cert_payment.or_num FROM tbl_cert_req
-              // RIGHT JOIN tbl_cert_payment ON tbl_cert_req.ctrl_no = tbl_cert_payment.ctrl_no ";
-              // $query = "SELECT tbl_cert_payment.*, tbl_cert_req.ctrl_no, tbl_cert_req.processingOfficer FROM tbl_cert_payment JOIN tbl_cert_req WHERE tbl_cert_payment.ctrl_no = tbl_cert_req.ctrl_no ";
-              // $query = "SELECT tbl_cert_payment.*, tbl_cert_req.ctrl_no, tbl_cert_req.processingOfficer FROM tbl_cert_payment JOIN tbl_cert_req WHERE tbl_cert_payment.ctrl_no = tbl_cert_req.ctrl_no ";
-               $query = "SELECT * FROM tbl_cert_payment";
-              $query_run = mysqli_query($conn, $query);
+            $query = "SELECT * FROM tbl_cert_payment";
+            $query_run = $connPDODBNADCERTDOC->query($query);
           ?>
 
             <div class="table-responsive p-0">
@@ -149,47 +160,43 @@
                 </thead>
                 <tbody>
                 <?php
-                    // if(mysqli_num_rows ($query_run) > 0)
-                    // {
-                    //     while($row = mysqli_fetch_array($query_run))
-                    //     {
-                    foreach ($query_run as $row)
+                    if ($query_run->rowCount() > 0)
                     {
-                            ?>
-                                  <tr>
-                                      <td class="align-middle text-center">
-                                          <h6 class="mb-0 text-sm"><?php echo $row['ctrl_no'] ?></h6>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="text-xs text-secondary mb-0"><?php echo $row['description'] ?></p>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="text-xs text-secondary mb-0"><?php echo $row['quantity'] ?></p>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="text-xs text-secondary mb-0"><?php echo $row['unitPrice'] ?></p>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="text-xs text-secondary mb-0"><?php echo $row['totalPrice'] ?></p>
-                                      </td>
-                                      <td class="align-middle text-center">
-                                          <p class="mb-0 text-sm font-weight-bolder"><?php echo $row['or_num'] ?></p>
-                                      </td>
-                                      
-                                  </tr>
-                              
- 
-                            <?php
-                        }
-                    // }
-                    // else 
-                    // {
-                    //     ?>
-                    <!-- //         <tr>
-                    //             <td colspan="7">No Request Found.</td>
-                    //         </tr> -->
-                         <?php
-                    // }
+                        while ($row = $query_run->fetch(PDO::FETCH_ASSOC))
+                        {
+                          ?>
+                                <tr>
+                                    <td class="align-middle text-center">
+                                        <h6 class="mb-0 text-sm"><?php echo $row['ctrl_no'] ?></h6>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <p class="text-xs text-secondary mb-0"><?php echo $row['description'] ?></p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <p class="text-xs text-secondary mb-0"><?php echo $row['quantity'] ?></p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <p class="text-xs text-secondary mb-0"><?php echo $row['unitprice'] ?></p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <p class="text-xs text-secondary mb-0"><?php echo $row['totalprice'] ?></p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <p class="mb-0 text-sm font-weight-bolder"><?php echo $row['or_num'] ?></p>
+                                    </td>
+                                    
+                                </tr>
+                          <?php
+                      }
+                    }
+                    else 
+                    {
+                        ?>
+                          <tr>
+                              <td colspan="7">No Request Found.</td>
+                          </tr>
+                        <?php
+                    }
                 ?>
                 </tbody>
               </table>

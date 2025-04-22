@@ -3,6 +3,7 @@
 require '../includes/dbcon.php';
 
 if (isset($_POST["submit"])) {
+
     // Sanitize and assign input values
     $ctrl_no = trim($_POST["ctrl_no"]);
     $fullname = trim($_POST["fullname"]);
@@ -18,17 +19,13 @@ if (isset($_POST["submit"])) {
     $tentative_resig_date = $_POST["tentative_resig_date"] ?? null;
     $final_resig_date = $_POST["final_resig_date"] ?? null;
 
-    $now = date('Y-m-d H:i:s');
-
-
     try {
-        // require '../includes/dbcon.php'; 
 
         $connPDODBNADCERTDOC->beginTransaction();
 
-        // 1. Insert into tbl_user
+        // Insert into tbl_user
         $stmt = $connPDODBNADCERTDOC->prepare("INSERT INTO tbl_user (ctrl_no, fullname, hospital_affiliation, address, mobile_number, email_address, added_at) 
-            VALUES (:ctrl_no, :fullname, :hospital_affiliation, :address, :mobile_number, :email_address, :added_at) RETURNING user_id");
+            VALUES (:ctrl_no, :fullname, :hospital_affiliation, :address, :mobile_number, :email_address, NOW()) RETURNING user_id");
 
         $stmt->execute([
             ':ctrl_no' => $ctrl_no,
@@ -36,54 +33,31 @@ if (isset($_POST["submit"])) {
             ':hospital_affiliation' => $hospital_affiliation,
             ':address' => $address,
             ':mobile_number' => $mobile_number,
-            ':email_address' => $email_address,
-            ':added_at' => $now
+            ':email_address' => $email_address
         ]);
 
         $inserted_id = $stmt->fetchColumn();
 
-        // 2. If employee fields are not empty, insert into tbl_phc_employee
-        if (!empty($employee_no) || !empty($uad) || !empty($position) || !empty($unit) || !empty($tentative_resig_date) || !empty($final_resig_date)) {
-            $stmt = $connPDODBNADCERTDOC->prepare("INSERT INTO tbl_phc_employee (user_id, employee_no, uad, position, unit, tentative_resig_date, final_resig_date, added_at)
-                VALUES (:user_id, :employee_no, :uad, :position, :unit, :tentative_resig_date, :final_resig_date, :added_at)");
-
-            $stmt->execute([
-                ':user_id' => $inserted_id,
-                ':employee_no' => $employee_no,
-                ':uad' => $uad,
-                ':position' => $position,
-                ':unit' => $unit,
-                ':tentative_resig_date' => $tentative_resig_date,
-                ':final_resig_date' => $final_resig_date,
-                ':added_at' => $now
-            ]);
-        }
-
-        // 3. Insert multiple certificate requests
+         //  Insert multiple certificate requests
         $reqnos = $_POST['reqno'] ?? [];
         foreach ($reqnos as $i => $reqno) {
             $certDesignation = $_POST['certDesignation'][$i] ?? '';
-            $trainingCert = $_POST['trainingCert'][$i] ?? '';
-            $otherTrainingCert = $_POST['otherTrainingCert'][$i] ?? '';
             $trainingDate = $_POST['trainingDate'][$i] ?? '';
             $trainingDateTo = $_POST['trainingDateTo'][$i] ?? '';
 
-            if (!empty($certDesignation) || !empty($trainingCert) || !empty($otherTrainingCert) || !empty($trainingDate)) {
+            if (!empty($certDesignation) || !empty($trainingDate) || !empty($trainingDateTo)) {
                 $stmt = $connPDODBNADCERTDOC->prepare("INSERT INTO tbl_cert_req 
-                    (user_id, ctrl_no, fullname, certDesignation, trainingCert, otherTrainingCert, trainingDate, trainingDateTo, status, processingOfficer, remarks, releaseDate, added_at) 
+                    (user_id, ctrl_no, fullname, certDesignation,  trainingDate, trainingDateTo, status, added_at) 
                     VALUES 
-                    (:user_id, :ctrl_no, :fullname, :certDesignation, :trainingCert, :otherTrainingCert, :trainingDate, :trainingDateTo, 'Requested', '', '', '', :added_at)");
+                    (:user_id, :ctrl_no, :fullname, :certDesignation, :trainingDate, :trainingDateTo, 'Requested', NOW())");
 
                 $stmt->execute([
                     ':user_id' => $inserted_id,
                     ':ctrl_no' => $ctrl_no,
                     ':fullname' => $fullname,
                     ':certDesignation' => $certDesignation,
-                    ':trainingCert' => $trainingCert,
-                    ':otherTrainingCert' => $otherTrainingCert,
                     ':trainingDate' => $trainingDate,
-                    ':trainingDateTo' => $trainingDateTo,
-                    ':added_at' => $now
+                    ':trainingDateTo' => $trainingDateTo
                 ]);
             }
         }
