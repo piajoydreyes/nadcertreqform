@@ -26,6 +26,9 @@ if (isset($_POST["submit"])) {
 
         $connPDODBNADCERTDOC->beginTransaction();
 
+        // Generate a unique control number
+        $ctrl_no = createRandomcnumber($connPDODBNADCERTDOC);
+
         // 1. Insert into tbl_user
         $stmt = $connPDODBNADCERTDOC->prepare("INSERT INTO tbl_user (ctrl_no, fullname, hospital_affiliation, address, mobile_number, email_address, added_at) 
             VALUES (:ctrl_no, :fullname, :hospital_affiliation, :address, :mobile_number, :email_address, :added_at) RETURNING user_id");

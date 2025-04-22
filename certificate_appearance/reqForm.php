@@ -45,26 +45,37 @@ require_once 'header.php';
                     </div>
 
                     <?php 
-                        function createRandomcnumber() 
-                        {
+                        function createRandomcnumber($connPDODBNADCERTDOC) {
                             $chars = "003232303232023232023456789";
                             srand((double)microtime()*1000000);
-                            $i = 0;
-                            $control = '' ;
-                            while ($i <= 8) {
-                                $num = rand() % 33;
-                                $tmp = substr($chars, $num, 1);
-                                $control = $control . $tmp;
-                                $i++;
+                            $control = '';
+                            $isUnique = false;
+                            
+                            while (!$isUnique) {
+                                $control = '';
+                                for ($i = 0; $i <= 8; $i++) {
+                                    $num = rand() % 33;
+                                    $tmp = substr($chars, $num, 1);
+                                    $control .= $tmp;
+                                }
+                                $ctrl_no = 'APPEARANCE-CERT-' . $control;
+                                
+                                // Check if control number already exists in the database
+                                $stmt = $connPDODBNADCERTDOC->prepare("SELECT COUNT(*) FROM tbl_user WHERE ctrl_no = :ctrl_no");
+                                $stmt->execute([':ctrl_no' => $ctrl_no]);
+                                
+                                if ($stmt->fetchColumn() == 0) {
+                                    $isUnique = true; // The control number is unique, break the loop
+                                }
                             }
-                            return $control;
+                            return $ctrl_no;
                         }
-                            $cNumber ='APPEARENCE-CERT-'.createRandomcnumber();
+                        $ctrl_no = createRandomcnumber($connPDODBNADCERTDOC);
                     ?>
 
                     <div class="input-box">
                         <label for="ctrl_no">Control No.</label>
-                        <input type="text" id="ctrl_no" name="ctrl_no" value="<?= $cNumber; ?>" class="form-control" readonly/>
+                        <input type="text" id="ctrl_no" name="ctrl_no" value="<?= htmlspecialchars($ctrl_no) ?>" class="form-control" readonly/>
                     </div>
                 </div>
 
