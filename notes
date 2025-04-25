@@ -876,3 +876,70 @@ require '../includes/dbcon.php';
 </body>
 
 </html>
+
+<!-- 
+ -->
+<!-- 
+  -->
+
+    require_once 'functions.php';
+
+    $apiKey = "pk-843dszWFD28fI9BN36SrmXqunFfdEYgSEIMkVO7410B";
+    $controlNumber = $_POST['control_num'];
+
+    $payment = getPaymentDetails($controlNumber);
+    $user = getUserDetails($controlNumber);
+
+    if (!$payment || !$user) {
+        echo "Invalid data. Payment or user info missing.";
+        exit;
+    }
+
+    $redirectUrl = "https://0810-202-90-128-252.ngrok-free.app/nadcertreqform/payment_result.php";
+
+    $payload = [
+        "totalAmount" => [
+            "value" => (float)$payment['totalprice'],
+            "currency" => "PHP"
+        ],
+        "buyer" => [
+            "firstName" => $user['fullname'],
+            "email" => $user['email_address']
+        ],
+        "redirectUrl" => [
+            "success" => $redirectUrl . "?status=success&control_num=$controlNumber",
+            "failure" => $redirectUrl . "?status=failure&control_num=$controlNumber",
+            "cancel"  => $redirectUrl . "?status=cancel&control_num=$controlNumber"
+        ],
+        "requestReferenceNumber" => $controlNumber,
+        "items" => [[
+            "name" => $payment['description'],
+            "quantity" => (int)$payment['quantity'],
+            "totalAmount" => [
+                "value" => (float)$payment['totalprice'],
+                "currency" => "PHP"
+            ]
+        ]]
+    ];
+
+    $headers = [
+        "Content-Type: application/json",
+        "Authorization: Basic " . base64_encode($apiKey . ":")
+    ];
+
+    $ch = curl_init("https://pg-sandbox.paymaya.com/checkout/v1/checkouts");
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+
+    if (isset($data['redirectUrl'])) {
+        header("Location: " . $data['redirectUrl']);
+        exit;
+    } else {
+        echo "Checkout error: " . htmlspecialchars($response);
+    }

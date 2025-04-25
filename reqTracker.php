@@ -90,9 +90,9 @@ if (isset($_POST['submit'])) {
 
                         if ($status === "For Payment") {
                             echo "<td id='reqTd'>
-                                    <form action='#' method='POST'>
-                                        <input type='hidden' name='reqPaymentID' value='$ctrl'>
-                                        <button type='submit' class='btn btn-info btn-xs mb-0' name='reqPaymentBtn'>
+                                    <form action='checkout.php' method='POST'>
+                                        <input type='hidden' name='control_num' value='$ctrl'>
+                                        <button type='submit' class='btn btn-info btn-xs mb-0'>
                                             <i class='fas fa-wallet'></i> Pay
                                         </button>
                                     </form>
