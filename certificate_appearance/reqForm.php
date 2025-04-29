@@ -1,6 +1,29 @@
- <?php
-require_once 'header.php';
+<?php
+    require '../includes/dbcon.php';
+    require 'functions.php';
 ?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <title>
+        REQUEST FORM
+    </title>
+
+    <!-- stylesheet -->
+    <link rel="stylesheet" href="assets/style.css">
+
+    <!-- jquery -->
+    <script src="assets/jquery.min.js" nonce="<?=$_SERVER['HTTP_X_NONCE']?>"></script>
+    
+</head>
+
+<body>
+
     <section class="container">
         <header>Certificate of Appearance</header>
         
@@ -44,38 +67,9 @@ require_once 'header.php';
                         <h3 id="title2">Document Requesting</h3>
                     </div>
 
-                    <?php 
-                        function createRandomcnumber($connPDODBNADCERTDOC) {
-                            $chars = "003232303232023232023456789";
-                            srand((double)microtime()*1000000);
-                            $control = '';
-                            $isUnique = false;
-                            
-                            while (!$isUnique) {
-                                $control = '';
-                                for ($i = 0; $i <= 8; $i++) {
-                                    $num = rand() % 33;
-                                    $tmp = substr($chars, $num, 1);
-                                    $control .= $tmp;
-                                }
-                                $ctrl_no = 'APPEARANCE-CERT-' . $control;
-                                
-                                // Check if control number already exists in the database
-                                $stmt = $connPDODBNADCERTDOC->prepare("SELECT COUNT(*) FROM tbl_user WHERE ctrl_no = :ctrl_no");
-                                $stmt->execute([':ctrl_no' => $ctrl_no]);
-                                
-                                if ($stmt->fetchColumn() == 0) {
-                                    $isUnique = true; // The control number is unique, break the loop
-                                }
-                            }
-                            return $ctrl_no;
-                        }
-                        $ctrl_no = createRandomcnumber($connPDODBNADCERTDOC);
-                    ?>
-
-                    <div class="input-box">
+                    <div class="input-box" hidden>
                         <label for="ctrl_no">Control No.</label>
-                        <input type="text" id="ctrl_no" name="ctrl_no" value="<?= htmlspecialchars($ctrl_no) ?>" class="form-control" readonly/>
+                        <input type="text" id="ctrl_no" name="ctrl_no" value="<?= htmlspecialchars($ctrl_no) ?>" class="form-control" readonly />
                     </div>
                 </div>
 
@@ -158,6 +152,19 @@ require_once 'header.php';
         </form>
     </section>
 
-<?php
-require_once 'footer.php';
-?>
+    
+    <!-- reqForm js -->
+    <script src="assets/reqForm.js" nonce="<?=$_SERVER['HTTP_X_NONCE']?>"></script>
+
+    <!-- disables browser back/previous button -->
+    <script>
+        $(document).ready(function() {
+            function disableBack() { window.history.forward() }
+
+            window.onload = disableBack();
+            window.onpageshow = function(evt) { if (evt.persisted) disableBack() }
+        });
+    </script>
+
+</body>
+</html>

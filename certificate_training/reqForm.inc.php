@@ -1,6 +1,7 @@
 <?php
 
 require '../includes/dbcon.php';
+require 'functions.php';
 
 if (isset($_POST["submit"])) {
     // Sanitize and assign input values

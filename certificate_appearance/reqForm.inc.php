@@ -1,6 +1,7 @@
 <?php
 
 require '../includes/dbcon.php';
+require 'functions.php';
 
 if (isset($_POST["submit"])) {
 
@@ -12,12 +13,11 @@ if (isset($_POST["submit"])) {
     $mobile_number = trim($_POST["mobile_number"]);
     $email_address = trim($_POST["email_address"]);
 
-    $employee_no = $_POST["employee_no"] ?? null;
-    $uad = $_POST["uad"] ?? null;
-    $position = $_POST["position"] ?? null;
-    $unit = $_POST["unit"] ?? null;
-    $tentative_resig_date = $_POST["tentative_resig_date"] ?? null;
-    $final_resig_date = $_POST["final_resig_date"] ?? null;
+    $certDesignation = $_POST['certDesignation'];
+    $trainingDate = $_POST['trainingDate'];
+    $trainingDateTo = $_POST['trainingDateTo'];
+
+    $now = date('Y-m-d H:i:s');
 
     try {
 
@@ -28,7 +28,7 @@ if (isset($_POST["submit"])) {
 
         // Insert into tbl_user
         $stmt = $connPDODBNADCERTDOC->prepare("INSERT INTO tbl_user (ctrl_no, fullname, hospital_affiliation, address, mobile_number, email_address, added_at) 
-            VALUES (:ctrl_no, :fullname, :hospital_affiliation, :address, :mobile_number, :email_address, NOW()) RETURNING user_id");
+            VALUES (:ctrl_no, :fullname, :hospital_affiliation, :address, :mobile_number, :email_address, :added_at) RETURNING user_id");
 
         $stmt->execute([
             ':ctrl_no' => $ctrl_no,
@@ -36,39 +36,35 @@ if (isset($_POST["submit"])) {
             ':hospital_affiliation' => $hospital_affiliation,
             ':address' => $address,
             ':mobile_number' => $mobile_number,
-            ':email_address' => $email_address
+            ':email_address' => $email_address,
+            ':added_at' => $now
         ]);
 
         $inserted_id = $stmt->fetchColumn();
 
-         //  Insert multiple certificate requests
-        $reqnos = $_POST['reqno'] ?? [];
-        foreach ($reqnos as $i => $reqno) {
-            $certDesignation = $_POST['certDesignation'][$i] ?? '';
-            $trainingDate = $_POST['trainingDate'][$i] ?? '';
-            $trainingDateTo = $_POST['trainingDateTo'][$i] ?? '';
+    
+        // Insert into tbl_cert_req
+        $stmt = $connPDODBNADCERTDOC->prepare("INSERT INTO tbl_cert_req 
+            (user_id, ctrl_no, fullname, certDesignation, trainingCert, otherTrainingCert, trainingDate, trainingDateTo, status, processingOfficer, remarks, releaseDate, added_at) 
+            VALUES 
+            (:user_id, :ctrl_no, :fullname, :certDesignation, '', '', :trainingDate, :trainingDateTo, 'Requested', '', '', '', :added_at)");
 
-            if (!empty($certDesignation) || !empty($trainingDate) || !empty($trainingDateTo)) {
-                $stmt = $connPDODBNADCERTDOC->prepare("INSERT INTO tbl_cert_req 
-                    (user_id, ctrl_no, fullname, certDesignation,  trainingDate, trainingDateTo, status, added_at) 
-                    VALUES 
-                    (:user_id, :ctrl_no, :fullname, :certDesignation, :trainingDate, :trainingDateTo, 'Requested', NOW())");
-
-                $stmt->execute([
-                    ':user_id' => $inserted_id,
-                    ':ctrl_no' => $ctrl_no,
-                    ':fullname' => $fullname,
-                    ':certDesignation' => $certDesignation,
-                    ':trainingDate' => $trainingDate,
-                    ':trainingDateTo' => $trainingDateTo
-                ]);
-            }
-        }
+        $stmt->execute([
+            ':user_id' => $inserted_id,
+            ':ctrl_no' => $ctrl_no,
+            ':fullname' => $fullname,
+            ':certDesignation' => $certDesignation,
+            ':trainingDate' => $trainingDate,
+            ':trainingDateTo' => $trainingDateTo,
+            ':added_at' => $now
+        ]);
+        
 
         $connPDODBNADCERTDOC->commit();
 
         // Confirmation message
         ?>
+
         <!DOCTYPE html>
         <html>
         <head>
@@ -108,6 +104,7 @@ if (isset($_POST["submit"])) {
             $connPDODBNADCERTDOC->rollBack();
         }
         error_log("Database error: " . $e->getMessage());
+        echo "Error: " . $e->getMessage();
         die("Something went wrong. Please try again later.");
     }
 } else {

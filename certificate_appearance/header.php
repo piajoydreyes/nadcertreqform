@@ -1,5 +1,6 @@
 <?php
     require '../includes/dbcon.php';
+    require 'functions.php';
 ?>
 
 <!DOCTYPE html>

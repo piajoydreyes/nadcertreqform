@@ -38,12 +38,11 @@
             $unitPrice = $_POST['unitPrice'];
             $totalPrice = $_POST['totalPrice'];
             $adminID = $_POST['admin_id'];
-            $userID = $_POST['user_id'];
         
-            if (!empty($description) || !empty($quantity) || !empty($unitPrice) || !empty($totalPrice) || !empty($adminID) || !empty($userID)) {
+            if (!empty($description) || !empty($quantity) || !empty($unitPrice) || !empty($totalPrice) || !empty($adminID)) {
                 $stmt2 = $connPDODBNADCERTDOC->prepare("
-                    INSERT INTO tbl_cert_payment (ctrl_no, description, quantity, unitPrice, totalPrice, admin_id, user_id)
-                    VALUES (:ctrl_no, :description, :quantity, :unitPrice, :totalPrice, :admin_id, :user_id)
+                    INSERT INTO tbl_cert_payment (ctrl_no, description, quantity, unitPrice, totalPrice, admin_id)
+                    VALUES (:ctrl_no, :description, :quantity, :unitPrice, :totalPrice, :admin_id)
                 ");
                 $stmt2->execute([
                     ':ctrl_no' => $ctrl_no,
@@ -51,8 +50,7 @@
                     ':quantity' => $quantity,
                     ':unitPrice' => $unitPrice,
                     ':totalPrice' => $totalPrice,
-                    ':admin_id' => $adminID,
-                    ':user_id' => $userID
+                    ':admin_id' => $adminID
                 ]);
             }
         

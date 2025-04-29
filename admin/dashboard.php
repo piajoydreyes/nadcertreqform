@@ -252,9 +252,43 @@
         <div class="card-body px-0 pt-0 pb-2">
 
         <?php 
-            // Get all certificate requests
-            $query = "SELECT * FROM tbl_cert_req";
-            $query_run = $connPDODBNADCERTDOC->query($query);
+          // Fetch all requests
+          $query = "SELECT * FROM tbl_cert_req ORDER BY ctrl_no";
+          $query_run = $connPDODBNADCERTDOC->query($query);
+
+          // Prepare a grouped array
+          $groupedRequests = [];
+
+          if ($query_run->rowCount() > 0) {
+              while ($row = $query_run->fetch(PDO::FETCH_ASSOC)) {
+                  $ctrl_no = $row['ctrl_no'];
+
+                  if (!isset($groupedRequests[$ctrl_no])) {
+                      // Initialize the first entry
+                      $groupedRequests[$ctrl_no] = [
+                          'fullname' => $row['fullname'],
+                          'processingofficer' => $row['processingofficer'],
+                          'status' => $row['status'],
+                          'certdesignation' => [],
+                          'trainingcert' => [],
+                          'othertrainingcert' => [],
+                          'trainingdate' => [],
+                      ];
+                  }
+
+                  // Collect multiple entries
+                  $groupedRequests[$ctrl_no]['certdesignation'][] = $row['certdesignation'];
+                  $groupedRequests[$ctrl_no]['trainingcert'][] = $row['trainingcert'];
+                  $groupedRequests[$ctrl_no]['othertrainingcert'][] = $row['othertrainingcert'];
+
+                  if (!is_null($row['trainingdate'])) {
+                      $trainDate = strtotime($row['trainingdate']);
+                      if ($trainDate > 0) {
+                          $groupedRequests[$ctrl_no]['trainingdate'][] = date("M d, Y", $trainDate);
+                      }
+                  }
+              }
+          }
         ?>
 
           <div class="table-responsive p-0">
@@ -272,78 +306,60 @@
                 </tr>
               </thead>
               <tbody>
-              <?php
-                  if ($query_run->rowCount() > 0)
-                  {
-                      while ($row = $query_run->fetch(PDO::FETCH_ASSOC))
-                      {
-                          ?>
-                          <tr>
-                              <td class="align-middle text-center">
-                                  <h6 class="mb-0 text-sm"><?php echo $row['ctrl_no'] ?></h6>
-                              </td>
-                              <td class="align-middle text-center">
-                                  <p class="text-xs text-secondary mb-0"><?php echo $row['fullname'] ?></p>
-                              </td>
-                              <td class="align-middle text-center">
-                                  <p class="text-xs text-secondary mb-0"><?php echo $row['certdesignation'] ?></p>
-                              </td>
-                              <td class="align-middle text-center">
-                                  <p class="text-xs text-secondary mb-0"><?php echo $row['trainingcert'] ?></p>
-                              </td>
-                              <td class="align-middle text-center">
-                                  <p class="text-xs text-secondary mb-0"><?php echo $row['othertrainingcert'] ?></p>
-                              </td>
-                              <td class="align-middle text-center">
-                                  <p class="text-xs text-secondary mb-0">
-                                    <?php 
-                                      if(!is_null($row['trainingdate']))
-                                      {
-                                        $trainDate = strtotime($row['trainingdate']);
-                                        if ($trainDate > 0)
-                                        {
-                                          echo date("M d, Y", strtotime($row['trainingdate']));
-                                        }
-                                      }
-                                    ?>
-                                  </p>
-                              </td>
-                              <td class="align-middle text-center">
-                                  <p class="text-xs text-secondary text-uppercase mb-0"><?php echo $row['processingofficer'] ?></p>
-                              </td>
-                              <td class="align-middle text-center text-sm">
+                <?php if (!empty($groupedRequests)): ?>
+                    <?php foreach ($groupedRequests as $ctrl_no => $details): ?>
+                        <tr>
+                            <td class="align-middle text-center">
+                                <h6 class="mb-0 text-sm"><?= htmlspecialchars($ctrl_no) ?></h6>
+                            </td>
+                            <td class="align-middle text-center">
+                                <p class="text-xs text-secondary mb-0"><?= htmlspecialchars($details['fullname']) ?></p>
+                            </td>
+                            <td class="align-middle text-center">
+                                <p class="text-xs text-secondary mb-0"><?= htmlspecialchars(implode(", ", $details['certdesignation'])) ?></p>
+                            </td>
+                            <td class="align-middle text-center">
+                                <p class="text-xs text-secondary mb-0"><?= htmlspecialchars(implode(", ", $details['trainingcert'])) ?></p>
+                            </td>
+                            <td class="align-middle text-center">
+                                <p class="text-xs text-secondary mb-0"><?= htmlspecialchars(implode(", ", $details['othertrainingcert'])) ?></p>
+                            </td>
+                            <td class="align-middle text-center">
+                                <p class="text-xs text-secondary mb-0"><?= htmlspecialchars(implode(", ", $details['trainingdate'])) ?></p>
+                            </td>
+                            <td class="align-middle text-center">
+                                <p class="text-xs text-secondary text-uppercase mb-0"><?= htmlspecialchars($details['processingofficer']) ?></p>
+                            </td>
+                            <td class="align-middle text-center text-sm">
                                 <?php 
-                                  if ($row['status'] === "Requested") {
+                                  $status = $details['status'];
+                                  if ($status === "Requested") {
                                     echo '<span class="badge badge-sm bg-gradient-info">Requested</span>';
-                                  } elseif ($row['status'] === "For Payment") {
+                                  } elseif ($status === "For Payment") {
                                     echo '<span class="badge bg-gradient-warning text-white">For Payment</span>';
-                                  } elseif ($row['status'] === "Paid") {
+                                  } elseif ($status === "Paid") {
                                     echo '<span class="badge bg-gradient-success text-white">Paid</span>';
-                                  } elseif ($row['status'] === "For Releasing") {
+                                  } elseif ($status === "For Releasing") {
                                     echo '<span class="badge bg-gradient-primary text-white">For Releasing</span>';
-                                  } elseif ($row['status'] === "Released") {
+                                  } elseif ($status === "Released") {
                                     echo '<span class="badge bg-gradient-danger text-white">Released</span>';
                                   }
                                 ?>
-                              </td>
-                          </tr>
-                          <?php
-                      }
-                  }
-                  else {
-                      ?>
-                          <tr>
-                              <td colspan="8">No Request Found.</td>
-                          </tr>
-                      <?php
-                  }
-              ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="8" class="text-center">No Request Found.</td>
+                    </tr>
+                <?php endif; ?>
               </tbody>
             </table>
           </div>
         </div>
       </div>
     </div>
+
 
     <footer class="footer pt-3">
       <div class="container-fluid">

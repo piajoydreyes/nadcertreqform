@@ -78,6 +78,15 @@
               </form>
             </div>
           </div>
+          
+          <!-- Back Button -->
+          <div class="backBtnContainer" style="margin-top: 15px; text-align: center;">
+              <form action="../index.php" method="POST">
+                  <button type="submit" class="btn btn-secondary">
+                      <i class="fas fa-arrow-left"></i> Back
+                  </button>
+              </form>
+          </div>
         </div>
       </div>
     </div>

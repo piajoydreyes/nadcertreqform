@@ -150,8 +150,10 @@
     <div class="container-fluid py-4">
 
         <?php
-          if(isset($_POST['editDocReqBtn'])) {
+          if(isset($_POST['editDocReqBtn'])) 
+          {
               $ctrl_no = $_POST['editDocReqID'];
+
 
               // Change the query to use PDO
               $query = "SELECT * FROM tbl_cert_req WHERE ctrl_no = :ctrl_no";
@@ -163,7 +165,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                
+              
                       <form action="editReq.inc.php" method="post">
                         <div class="card-header pb-0">
                           <div class="d-flex align-items-center">
@@ -174,164 +176,163 @@
                         <div class="card-body">
                           <div class="table-responsive p-0">
                             <table class="table align-items-center mb-0">
-                                <thead>
-                                  <tr>
-                                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Control No.</th>
-                                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Full Name</th>
-                                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training / Certificate</th>
-                                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Title</th>
-                                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Other Title</th>
-                                      <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training Date</th>
-                                  </tr>
-                              </thead>
-                            <?php
-                            // Loop through query result
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) 
-                            {
-                            ?>
-                              <tbody>
+                              <thead>
                                 <tr>
-                                  <td class="align-middle text-center">
-                                      <h6 class="mb-0 text-sm"><?php echo $row['ctrl_no'] ?></h6>
-                                  </td>
-                                  <td class="align-middle text-center">
-                                      <p class="text-xs text-secondary mb-0"><?php echo $row['fullname'] ?></p>
-                                  </td>
-                                  <td class="align-middle text-center">
-                                      <p class="text-xs text-secondary mb-0"><?php echo $row['certdesignation'] ?></p>
-                                  </td>
-                                  <td class="align-middle text-center">
-                                      <p class="text-xs text-secondary mb-0"><?php echo $row['trainingcert'] ?></p>
-                                  </td>
-                                  <td class="align-middle text-center">
-                                      <p class="text-xs text-secondary mb-0"><?php echo $row['othertrainingcert'] ?></p>
-                                  </td>
-                                  <td class="align-middle text-center">
-                                      <p class="text-xs text-secondary mb-0"><?php echo date("M d, Y",strtotime($row['trainingdate'])) ?></p>
-                                  </td>
+                                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Control No.</th>
+                                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Full Name</th>
+                                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training / Certificate</th>
+                                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Title</th>
+                                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Other Title</th>
+                                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Training Date</th>
                                 </tr>
-                              </tbody>
-                    
+                              </thead>
+                              <?php
+                              // Loop through query result
+                              while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) 
+                              {
+                              ?>
+
+                                <tbody>
+                                  <tr>
+                                    <td class="align-middle text-center">
+                                        <h6 class="mb-0 text-sm"><?php echo $row['ctrl_no'] ?></h6>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <p class="text-xs text-secondary mb-0"><?php echo $row['fullname'] ?></p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <p class="text-xs text-secondary mb-0"><?php echo $row['certdesignation'] ?></p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <p class="text-xs text-secondary mb-0"><?php echo $row['trainingcert'] ?></p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <p class="text-xs text-secondary mb-0"><?php echo $row['othertrainingcert'] ?></p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <p class="text-xs text-secondary mb-0"><?php echo date("M d, Y",strtotime($row['trainingdate'])) ?></p>
+                                    </td>
+                                    
+                                  </tr>
+                                </tbody>
+                                
+                              <?php
+                              }
+                              ?>
+
                             </table>
                           </div>
-                            <input class="form-control" type="text" value="<?php echo $row['ctrl_no'] ?>" name="editDocReqID" hidden>
-                            <div class="row mt-4">
+                         
+                          <input class="form-control" type="text" value="<?= htmlspecialchars($ctrl_no) ?>" name="editDocReqID" hidden>
+                          <div class="row mt-4">
+                            <div class="col-md-3 text-end mt-2">
+                                <div class="form-group ">
+                                    <label for="processingOfficer" class="form-control-label">Processing Officer</label>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <input class="form-control text-uppercase" type="text" value="<?= htmlspecialchars($uName) ?>" name="processingOfficer" id="processingOfficer" readonly>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-md-3 text-end mt-2">
+                              <div class="form-group ">
+                                <label for="status" class="form-control-label">Status</label>
+                              </div>
+                            </div>
+                            <div class="col-md-8">
+                              <div class="form-group">
+                                <select class="form-control" name="status" id="status" >
+                                  <option selected hidden>Status</option>
+                                  <option value="Requested">Requested</option>
+                                  <option value="For Payment">For Payment</option>
+                                  <option value="Paid">Paid</option>
+                                  <option value="For Releasing">For Releasing</option>
+                                  <option value="Released">Released</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
                               <div class="col-md-3 text-end mt-2">
                                   <div class="form-group ">
-                                      <label for="processingOfficer" class="form-control-label">Processing Officer</label>
+                                      <label for="remarks" class="form-control-label">Remarks</label>
                                   </div>
                               </div>
                               <div class="col-md-8">
                                   <div class="form-group">
-                                      <input class="form-control text-uppercase" type="text" value="<?= htmlspecialchars($uName) ?>" name="processingOfficer" id="processingOfficer" readonly>
+                                      <input class="form-control" type="text" name="remarks" id="remarks">
                                   </div>
                               </div>
-                            </div>
-                            <div class="row">
+                          </div>
+                          <div class="row">
                               <div class="col-md-3 text-end mt-2">
-                                <div class="form-group ">
-                                  <label for="status" class="form-control-label">Status</label>
-                                </div>
+                                  <div class="form-group ">
+                                      <label for="releaseDate" class="form-control-label">Release Date</label>
+                                  </div>
                               </div>
                               <div class="col-md-8">
-                                <div class="form-group">
-                                  <select class="form-control" name="status" id="status" >
-                                    <option selected hidden>Status</option>
-                                    <option value="Requested">Requested</option>
-                                    <option value="For Payment">For Payment</option>
-                                    <option value="Paid">Paid</option>
-                                    <option value="For Releasing">For Releasing</option>
-                                    <option value="Released">Released</option>
-                                  </select>
-                                </div>
+                                  <div class="form-group">
+                                      <input class="form-control" type="date" name="releaseDate" id="releaseDate">
+                                  </div>
                               </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3 text-end mt-2">
-                                    <div class="form-group ">
-                                        <label for="remarks" class="form-control-label">Remarks</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" name="remarks" id="remarks">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3 text-end mt-2">
-                                    <div class="form-group ">
-                                        <label for="releaseDate" class="form-control-label">Release Date</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <input class="form-control" type="date" name="releaseDate" id="releaseDate">
-                                    </div>
-                                </div>
-                            </div>
+                          </div>
 
-                            <div class="row mt-4">
-                                <h6 class="text-center">Payment Details:</h6>
+                          <div class="row mt-4">
+                              <h6 class="text-center">Payment Details:</h6>
 
-                                  <input class="form-control" type="text" name="admin_id" value="<?= htmlspecialchars($uid) ?>" hidden>
-                                  <input class="form-control" type="text" name="user_id" value="<?php echo $row['user_id'] ?>" hidden>
+                                <input class="form-control" type="text" name="admin_id" value="<?= htmlspecialchars($uid) ?>" hidden>
 
-                                <div class="col-md-3 text-end mt-2">
-                                    <div class="form-group ">
-                                        <label for="description" class="form-control-label">Description</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" name="description" id="description">
-                                    </div>
-                                </div>
-                                <div class="col-md-3 text-end mt-2">
-                                    <div class="form-group ">
-                                        <label for="quantity" class="form-control-label">Quantity</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <input class="form-control" type="number" name="quantity" id="quantity">
-                                    </div>
-                                </div>
-                                <div class="col-md-3 text-end mt-2">
-                                    <div class="form-group ">
-                                        <label for="unitPrice" class="form-control-label">Unit Price</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <input class="form-control" type="number" name="unitPrice" id="unitPrice">
-                                    </div>
-                                </div>
-                                <div class="col-md-3 text-end mt-2">
-                                    <div class="form-group ">
-                                        <label for="totalPrice" class="form-control-label">Total Price</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <input class="form-control" type="number" name="totalPrice" id="totalPrice">
-                                    </div>
-                                </div>
+                              <div class="col-md-3 text-end mt-2">
+                                  <div class="form-group ">
+                                      <label for="description" class="form-control-label">Description</label>
+                                  </div>
+                              </div>
+                              <div class="col-md-8">
+                                  <div class="form-group">
+                                      <input class="form-control" type="text" name="description" id="description">
+                                  </div>
+                              </div>
+                              <div class="col-md-3 text-end mt-2">
+                                  <div class="form-group ">
+                                      <label for="quantity" class="form-control-label">Quantity</label>
+                                  </div>
+                              </div>
+                              <div class="col-md-8">
+                                  <div class="form-group">
+                                      <input class="form-control" type="number" name="quantity" id="quantity">
+                                  </div>
+                              </div>
+                              <div class="col-md-3 text-end mt-2">
+                                  <div class="form-group ">
+                                      <label for="unitPrice" class="form-control-label">Unit Price</label>
+                                  </div>
+                              </div>
+                              <div class="col-md-8">
+                                  <div class="form-group">
+                                      <input class="form-control" type="number" name="unitPrice" id="unitPrice">
+                                  </div>
+                              </div>
+                              <div class="col-md-3 text-end mt-2">
+                                  <div class="form-group ">
+                                      <label for="totalPrice" class="form-control-label">Total Price</label>
+                                  </div>
+                              </div>
+                              <div class="col-md-8">
+                                  <div class="form-group">
+                                      <input class="form-control" type="number" name="totalPrice" id="totalPrice">
+                                  </div>
+                              </div>
 
-                            </div>
+                          </div>
 
                         </div>
-
-                          <?php
-                            }
-                          ?>
-
-                      </div>
-                      
                       </form>
-                    <?php
-                    }
-                    ?>
+          <?php
+          }
+          ?>
                     
                 </div>
             </div>
@@ -354,6 +355,7 @@
             </div>
         </footer>
     </div>
+    
   </main>
 
   <!--   Core JS Files   -->
